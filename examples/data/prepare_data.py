@@ -61,11 +61,12 @@ class PassengerData(DataSet):
 
         x = pd.DataFrame(data['Passengers'])
         x = self.feature_norm(x)
-        x = transform2_lagged_feature(x)
+        x = transform2_lagged_feature(x,window_sizes=16)
         y = pd.DataFrame(data['Passengers'])
         y = np.log1p(y.values)
-        y = multi_step_y(y,5)
+        y = multi_step_y(y,predict_window=4)
         x,y=self.postprocess(x,y)
+        print('x:',x.shape,' y:',y.shape)
         #for x1,y1 in zip(x,y):
             #yield x1,y1
         return (x,y)
@@ -84,3 +85,9 @@ class PassengerData(DataSet):
         x=x[~filter]
         y=y[~filter]
         return x,y
+
+
+class Webtraffic(DataSet):
+    def __init__(self,params):
+        super(Webtraffic,self).__init__(params)
+        pass

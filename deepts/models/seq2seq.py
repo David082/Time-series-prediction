@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 # @author: Longxing Tan, tanlongxing888@163.com
 # @date: 2020-01
+# paper:
+# other implementations:
+
 
 import tensorflow as tf
-from tensorflow.keras.layers import Input,Dense
+from tensorflow.keras.layers import Dense
 
 params={
     'rnn_size':32,
     'dense_size':8,
     'num_stacked_layers':1,
-    'predict_window_sizes':5,
 }
 
 
@@ -19,12 +21,10 @@ class Seq2seq(object):
         self.encoder=Encoder()
         self.decoder=Decoder()
 
-    def __call__(self, inputs_shape,training):
-        x=Input(inputs_shape)
+    def __call__(self, x, predict_seq_length,training):
         encoder_output,encoder_state=self.encoder(x)
-        decoder_output = self.decoder(None,encoder_state,x)
-        print('decoder_output',decoder_output)
-        return tf.keras.Model(x,decoder_output,name='seq2seq')
+        decoder_output = self.decoder(None,encoder_state, x, predict_seq_length=predict_seq_length)
+        return decoder_output
 
 
 class Encoder(object):
@@ -51,9 +51,9 @@ class Decoder(object):
         self.rnn=tf.keras.layers.RNN(self.rnn_cell,return_state=True,return_sequences=True)
         self.dense=tf.keras.layers.Dense(units=1)
 
-    def forward(self,decoder_inputs,init_state,decoder_init_value):
+    def forward(self,decoder_inputs,init_state,decoder_init_value,predict_seq_length):
         def cond_fn(time,prev_output,prev_state,decoder_output_ta):
-            return time<params['predict_window_sizes']
+            return time<predict_seq_length
 
         def body(time,prev_output,prev_state,decoder_output_ta):
             this_input=prev_output
@@ -69,7 +69,7 @@ class Decoder(object):
         loop_init=[tf.constant(0,dtype=tf.int32),
                    decoder_init_value,
                    init_state,
-                   tf.TensorArray(dtype=tf.float32,size=params['predict_window_sizes'])]
+                   tf.TensorArray(dtype=tf.float32,size=predict_seq_length)]
         _,_,_,decoder_outputs_ta=tf.while_loop(cond_fn,body,loop_init)
 
         decoder_outputs=decoder_outputs_ta.stack()
@@ -77,7 +77,7 @@ class Decoder(object):
         decoder_outputs=decoder_outputs
         return decoder_outputs
 
-    def __call__(self, decoder_inputs,encoder_state,encoder_inputs, training=None, mask=None):
+    def __call__(self, decoder_inputs,encoder_state,encoder_inputs, training=None, mask=None, predict_seq_length=1):
         #context_vector=self.attention(x)
         #x=tf.concat([tf.expand_dims(context_vector,1),x],axis=-1)
         #output,state=self.rnn(x)
@@ -85,5 +85,6 @@ class Decoder(object):
         return self.forward(decoder_inputs=decoder_inputs,
                             init_state=[encoder_state],  # for tf2
                             decoder_init_value=tf.expand_dims(encoder_inputs[:,-1,0],1),
+                            predict_seq_length=predict_seq_length
                             )
 

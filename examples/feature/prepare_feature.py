@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 
 
-def transform2_lagged_feature(x,window_sizes=10):
+def transform2_lagged_feature(x,window_sizes):
     '''
     create historical lagged value as features
     :return:

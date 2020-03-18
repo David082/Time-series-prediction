@@ -2,23 +2,22 @@
 # -*- coding: utf-8 -*-
 # @author: Longxing Tan, tanlongxing888@163.com
 # @date: 2020-01
+# paper:
+# other implementations: https://github.com/philipperemy/keras-tcn
+#                        https://github.com/emreaksan/stcn
+
 
 import tensorflow as tf
-from tensorflow.keras.layers import Input,Dense
+from tensorflow.keras.layers import Dense
 from deepts.layers.tcn_layer import Dense3D, ConvTime
 tf.config.experimental_run_functions_eagerly(True)  # ??
-
-
-# https://github.com/philipperemy/keras-tcn
-# https://github.com/emreaksan/stcn
 
 
 params={
     'dilation_rates':[2 ** i for i in range(4)],
     'kernel_sizes':[2 for i in range(4)],
     'filters':128,
-    'dense_hidden_size':64,
-    'predict_window_sizes':5,
+    'dense_hidden_size':64
 }
 
 
@@ -30,11 +29,10 @@ class TCN(object):
         self.encoder=Encoder(params)
         self.decoder=Decoder(params)
 
-    def __call__(self, inputs_shape,training):
-        x=Input(inputs_shape)
+    def __call__(self, x, predict_seq_length,training):
         encoder_outputs,encoder_state=self.encoder(x)
-        decoder_output = self.decoder(None,encoder_outputs=encoder_outputs,encoder_inputs=x)
-        return tf.keras.Model(x,decoder_output)
+        decoder_output = self.decoder(None,encoder_outputs=encoder_outputs,encoder_inputs=x, predict_seq_length=predict_seq_length)
+        return decoder_output
 
 
 class Encoder(object):
@@ -89,9 +87,9 @@ class Decoder(object):
         self.dense_5=tf.keras.layers.Dense(self.params['dense_hidden_size'],name='decoder_dense_5')
         self.dense_6=tf.keras.layers.Dense(1,name='decoder_dense_6')
 
-    def foward(self,decoder_inputs,encoder_outputs,decoder_init_value):
+    def foward(self,decoder_inputs,encoder_outputs,decoder_init_value,predict_seq_length):
         def cond_fn(time, prev_output, decoder_output_ta):
-            return time < self.params['predict_window_sizes']
+            return time < predict_seq_length
 
         def body(time, prev_output, decoder_output_ta):
             current_input=prev_output
@@ -124,13 +122,14 @@ class Decoder(object):
 
         loop_init = [tf.constant(0, dtype=tf.int32),
                      decoder_init_value,
-                     tf.TensorArray(dtype=tf.float32, size=self.params['predict_window_sizes'])]
+                     tf.TensorArray(dtype=tf.float32, size=predict_seq_length)]
         _, _, decoder_outputs_ta = tf.while_loop(cond=cond_fn, body=body, loop_vars=loop_init)
         decoder_outputs = decoder_outputs_ta.stack()
         decoder_outputs = tf.transpose(decoder_outputs, [1, 0, 2])
         return decoder_outputs
 
-    def __call__(self, decoder_inputs,encoder_outputs,encoder_inputs):
+    def __call__(self, decoder_inputs,encoder_outputs,encoder_inputs,predict_seq_length):
         return self.foward(decoder_inputs,
                            encoder_outputs,
-                           decoder_init_value=tf.expand_dims(encoder_inputs[:,-1,0],1))
+                           decoder_init_value=tf.expand_dims(encoder_inputs[:,-1,0],1),
+                           predict_seq_length=predict_seq_length)

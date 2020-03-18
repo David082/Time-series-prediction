@@ -4,7 +4,7 @@
 
 # -*- coding: utf-8 -*-
 # @author: Longxing Tan, tanlongxing888@163.com
-# @date: 2020-01
+# @date: 2020-03
 
 
 from prepare_data import PassengerData
@@ -17,7 +17,7 @@ def main():
     print(x.values.shape,y.shape)
 
     model=Model(use_model='seq2seq')
-    model.test(x,y,epochs=10)
+    model.test(x)
 
 
 if __name__=='__main__':

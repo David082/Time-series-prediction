@@ -9,15 +9,15 @@ import os
 filePath = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.split(filePath)[0])
 from data.data_loader import DataLoader
-from deepts.models.model import Model
+from deepts.model import Model
+from config import params
 
 
 def main():
-    params={}
-    data_loader=DataLoader(data_dir='../data/international-airline-passengers.csv')
+    data_loader=DataLoader(data_dir=params['data_dir'])
     dataset=data_loader(batch_size=8,training=True)
 
-    model=Model(use_model='seq2seq', use_loss='mse',use_optimizer='adam')  # model: seq2seq, tcn, transformer
+    model=Model(use_model=params['use_model'], params=params, use_loss='mse',use_optimizer='adam')  # model: seq2seq, tcn, transformer
     model.train(dataset,n_epochs=10,mode='eager')  # mode can choose eager or fit
 
 

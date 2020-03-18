@@ -1,45 +1,60 @@
 
 # -*- coding: utf-8 -*-
 # @author: Longxing Tan, tanlongxing888@163.com
-# @date: 2020-01
+# @date: 2020-03
+# paper:
+# other implementations: https://github.com/buriburisuri/timeseries_gan
+#                        https://github.com/numancelik34/TimeSeries-GAN/blob/master/conv1d_gan.py
+#                        https://github.com/proceduralia/pytorch-GAN-timeseries
+
 
 import tensorflow as tf
-from tensorflow.keras.layers import Input,Dense
+from tensorflow.keras.layers import (Input,Dense,Conv2D, Conv2DTranspose, BatchNormalization)
+
+
+params={
+    'rnn_size':32,
+    'dense_size':8,
+    'num_stacked_layers':1,
+    'predict_window_sizes':5,
+}
 
 
 class GAN(object):
     def __init__(self):
+        '''
+
+        '''
         self.generator=Generator()
         self.discriminator=Discriminator()
 
     def __call__(self, inputs_shape,training):
         x=Input(inputs_shape)
-        encoder_output,encoder_state=self.encoder(x)
-        decoder_output = self.decoder(None,encoder_state,x)
+        generator_output=self.generator(x)
+        decoder_output = self.discriminator(generator_output,x)
         return tf.keras.Model(x,decoder_output)
 
 
 class Generator(tf.keras.Model):
-    def __init__(self,params):
+    def __init__(self):
         super(Generator,self).__init__()
-        self.params=params
-        self.upconv1=tf.keras.layers.Conv2DTranspose(filters=64,
-                                                     kernel_size=[4,1],
-                                                     strides=[2,1],
-                                                     padding='SAME')
-        self.upconv2 = tf.keras.layers.Conv2DTranspose(filters=32,
-                                                       kernel_size=[4, 1],
-                                                       strides=[2, 1],
-                                                       padding='SAME')
-        self.upconv3=tf.keras.layers.Conv2DTranspose(filters=2,
-                                                     kernel_size=[4,1],
-                                                     strides=[2,1],
-                                                     padding='SAME')
-        self.fc1=tf.keras.layers.Dense(units=1024)
-        self.fc2=tf.keras.layers.Dense(units=4*1*128)
-        self.bn1=tf.keras.layers.BatchNormalization()
-        self.bn2=tf.keras.layers.BatchNormalization()
-        self.bn3=tf.keras.layers.BatchNormalization()
+        self.upconv1 = Conv2DTranspose(filters=64,
+                                       kernel_size=[4,1],
+                                       strides=[2,1],
+                                       padding='SAME')
+        self.upconv2 = Conv2DTranspose(filters=32,
+                                       kernel_size=[4, 1],
+                                       strides=[2, 1],
+                                       padding='SAME')
+        self.upconv3 = Conv2DTranspose(filters=2,
+                                       kernel_size=[4,1],
+                                       strides=[2,1],
+                                       padding='SAME')
+        self.fc1 = Dense(units=1024)
+        self.fc2 = Dense(units=4*1*128)
+        self.bn1 = BatchNormalization()
+        self.bn2 = BatchNormalization()
+        self.bn3 = BatchNormalization()
 
     def call(self,z,training=True):
         ln1 = tf.nn.relu(self.bn1(self.fc1(z)))
@@ -57,27 +72,26 @@ class Generator(tf.keras.Model):
 
 
 class Discriminator(tf.keras.Model):
-    def __init__(self,params):
+    def __init__(self):
         super(Discriminator,self).__init__()
-        self.params=params
-        self.conv1=tf.keras.layers.Conv2D(filters=64,
-                                          kernel_size=[4,4],
-                                          strides=[2,2],
-                                          padding='SAME')
-        self.conv2=tf.keras.layers.Conv2D(filters=128,
-                                          kernel_size=[4,4],
-                                          strides=[2,2],
-                                          padding='SAME')
-        self.fc1=tf.keras.layers.Dense(1024)
-        self.fc2=tf.keras.layers.Dense(1)
-        self.bn1=tf.keras.layers.BatchNormalization()
-        self.bn2=tf.keras.layers.BatchNormalization()
+        self.conv1 = Conv2D(filters=64,
+                            kernel_size=[4,4],
+                            strides=[2,2],
+                            padding='SAME')
+        self.conv2 = Conv2D(filters=128,
+                            kernel_size=[4,4],
+                            strides=[2,2],
+                            padding='SAME')
+        self.fc1 = Dense(1024)
+        self.fc2 = Dense(1)
+        self.bn1 = BatchNormalization()
+        self.bn2 = BatchNormalization()
 
     def call(self,x,training=True):
         x = tf.convert_to_tensor(x)  # class Tensor has dtype of float64_ref and class Variable has dtype of float64
         conv1 = tf.nn.leaky_relu(self.conv1(x))
         conv2 = tf.nn.leaky_relu(self.bn1((conv1)))
-        conv2 = tf.reshape(conv2, [self.params['batch_size'], -1])
+        conv2 = tf.reshape(conv2, [x.get_shape().as_list()[0], -1])
         ln1 = tf.nn.leaky_relu(self.bn2(self.fc1(conv2)))
         ln2 = self.fc2(ln1)
         output = tf.nn.sigmoid(ln2)
