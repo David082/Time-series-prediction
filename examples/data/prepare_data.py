@@ -55,7 +55,7 @@ class PassengerData(DataSet):
         logging.info("input data shape : {}".format(data.shape))
         return data
 
-    def get_examples(self,data_dir):
+    def get_examples(self,data_dir,sample=1):
         data=self.load_data(data_dir)
         data=self.preprocess_data(data)
 
@@ -66,10 +66,16 @@ class PassengerData(DataSet):
         y = np.log1p(y.values)
         y = multi_step_y(y,predict_window=4)
         x,y=self.postprocess(x,y)
-        print('x:',x.shape,' y:',y.shape)
+
+        n_example = int(sample * x.shape[0])
+        if sample >= 0.5:  # if sample>0.5, blindly guess it's training
+            print('x:', x[:n_example].shape, ' y:', y[:n_example].shape)
+            return x[:n_example],y[:n_example]
+        if sample < 0.5:  # if sample<0.5, blindly guess it's valid
+            print('x:', x[n_example:].shape, ' y:', y[n_example:].shape)
+            return x[n_example:],y[n_example:]
         #for x1,y1 in zip(x,y):
             #yield x1,y1
-        return (x,y)
 
     def postprocess(self,x,y):
         if isinstance(x,pd.DataFrame):
@@ -90,4 +96,10 @@ class PassengerData(DataSet):
 class Webtraffic(DataSet):
     def __init__(self,params):
         super(Webtraffic,self).__init__(params)
+        pass
+
+
+class M5(DataSet):
+    def __init__(self,params):
+        super(M5,self).__init__(params)
         pass

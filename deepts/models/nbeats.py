@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 # @author: Longxing Tan, tanlongxing888@163.com
 # @date: 2020-03
@@ -21,7 +20,7 @@ params=defaultdict(stack_types=['trend_block','seasonality_block'],
 
 
 class NBeatsNet(object):
-    def __init__(self,):
+    def __init__(self, custom_model_params):
         self.stack_types=params['stack_types']
         self.nb_blocks_per_stack=params['nb_blocks_per_stack']
         self.hidden_layer_units=params['hidden_layer_units']

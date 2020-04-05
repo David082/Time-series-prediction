@@ -7,72 +7,96 @@ It's highly welcomed to contribute if you have better idea, just create a PR. If
   <tr>
     <th>
       <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="source code">ARIMA</a>           
+           <a href="./docs/arima.md" name="introduction">ARIMA</a>           
       </p>
     </th>
     <th>
       <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="notebooks">notebooks</a>     
+           <a href="./deepts/models/arima.py" name="code">code</a>     
+      </p>
+    </th> 
+  </tr>
+  <tr>
+    <th>
+      <p align="center">
+           <a href="./docs/tree.md" name="introduction">Boosting-tree</a>           
+      </p>
+    </th>
+    <th>
+      <p align="center">
+           <a href="./deepts/models/tree.py" name="code">code</a>     
       </p>
     </th>
   </tr>
   <tr>
     <th>
       <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="source code">Tree (xgboost, lightgbm) </a>           
+           <a href="./docs/rnn.md" name="introduction">RNN</a>         
       </p>
     </th>
     <th>
       <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="notebooks">notebooks</a>     
-      </p>
-    </th>
-  </tr>
-  <tr>
-    <th>
-      <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="source code">RNN</a>         
-      </p>
-    </th>
-    <th>
-      <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="notebooks">notebooks</a>     
+           <a href="./deepts/models/seq2seq.py" name="code">code</a>     
       </p>
     </th>
   </tr>
   <tr>
     <th>
       <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="source code">CNN/TCN</a>         
+           <a href="./docs/cnn.md" name="introduction">CNN</a>         
       </p>
     </th>
     <th>
       <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="notebooks">notebooks</a>     
-      </p>
-    </th>
-  </tr>
-  <tr>
-    <th>
-      <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="source code">Transformer</a>         
-      </p>
-    </th>
-    <th>
-      <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="notebooks">notebooks</a>     
+           <a href="./deepts/models/tcn.py" name="code">code</a>     
       </p>
     </th>
   </tr>
   <tr>
     <th>
       <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="source code">GAN</a>         
+           <a href="./docs/transformer.md" name="introduction">Transformer</a>         
       </p>
     </th>
     <th>
       <p align="center">
-           <a href="./00_computer_vision/00_opencv_basic/README.md" name="notebooks">notebooks</a>     
+           <a href="./deepts/models/transformer.py" name="code">code</a>     
+      </p>
+    </th>
+  </tr>
+  <tr>
+    <th>
+      <p align="center">
+           <a href="./docs/unet.md" name="introduction">U-Net</a>         
+      </p>
+    </th>
+    <th>
+      <p align="center">
+           <a href="./deepts/models/unet.py" name="code">code</a>     
+      </p>
+    </th>
+  </tr>
+  <tr>
+    <th>
+      <p align="center">
+           <a href="./docs/nbeats.md" name="introduction">N-Beats</a>         
+      </p>
+    </th>
+    <th>
+      <p align="center">
+           <a href="./deepts/models/nbeats.py" name="code">code</a>     
+      </p>
+    </th>
+  </tr>
+  <tr>
+    <th>
+      <p align="center">
+           <a href="./docs/gan.md" name="introduction">GAN</a>         
+      </p>
+    </th>
+    <th>
+      <p align="center">
+           <a href="./deepts/models/gan.py" name="code">code</a>     
       </p>
     </th>
   </tr>
@@ -86,14 +110,19 @@ pip install -r requirements.txt
 ```
 2. Download the data, if necessary
 ```bash
-./data/download_passenger.sh
+bash ./data/download_passenger.sh
 ```
 3. Train the model
 ```bash
 cd examples
 python run_train.py --use_model seq2seq
 ```
+set your own model parameters, just set `custom_model_params` according to each model's params
 
+4. Predict new data
+```
+python run_test.py
+```
 
 ## Further reading
 https://github.com/awslabs/gluon-ts/

@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 # @author: Longxing Tan, tanlongxing888@163.com
 # @date: 2020-03
@@ -13,7 +12,7 @@ from deepts.layers.unet_layer import *
 
 
 class Unet(object):
-    def __init__(self):
+    def __init__(self, custom_model_params):
         self.AvgPool1D1 = AveragePooling1D(pool_size=2)
         self.AvgPool1D2 = AveragePooling1D(pool_size=4)
         self.encoder = Encoder()

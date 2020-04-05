@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 # @author: Longxing Tan, tanlongxing888@163.com
 # @date: 2020-01
@@ -23,7 +22,7 @@ params={
 
 
 class Transformer(object):
-    def __init__(self):
+    def __init__(self, custom_model_params):
         super(Transformer,self).__init__()
         self.params=params
         self.embedding_layer=EmbeddingLayer(embedding_size=params['attention_hidden_size'])

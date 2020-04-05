@@ -14,11 +14,13 @@ from config import params
 
 
 def main():
-    data_loader=DataLoader(data_dir=params['data_dir'])
-    dataset=data_loader(batch_size=8,training=True)
+    data_loader=DataLoader()
+    dataset=data_loader(data_dir=params['data_dir'], batch_size=8,training=True, sample=0.8)
+    valid_dataset=data_loader(data_dir=params['data_dir'],batch_size=8, training=True, sample=0.2)
 
-    model=Model(use_model=params['use_model'], params=params, use_loss='mse',use_optimizer='adam')  # model: seq2seq, tcn, transformer
-    model.train(dataset,n_epochs=10,mode='eager')  # mode can choose eager or fit
+    model=Model(params=params, use_model=params['use_model'], use_loss='mse',use_optimizer='adam')  # model: seq2seq, tcn, transformer
+    model.train(dataset,n_epochs=10,mode='eager',export_model=True)  # mode can choose eager or fit
+    model.eval(valid_dataset)
 
 
 if __name__=='__main__':

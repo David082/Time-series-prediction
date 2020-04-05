@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 # @author: Longxing Tan, tanlongxing888@163.com
 # @date: 2020-01
@@ -17,7 +16,7 @@ params={
 
 
 class Seq2seq(object):
-    def __init__(self):
+    def __init__(self, custom_model_params):
         self.encoder=Encoder()
         self.decoder=Decoder()
 
